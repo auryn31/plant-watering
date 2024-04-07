@@ -27,6 +27,7 @@ export default async function RootLayout({
       </main>
     );
   }
+  return <p>Success</p>;
   const { user } = session;
   return (
     <html lang="en">
