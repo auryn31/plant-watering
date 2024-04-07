@@ -28,5 +28,4 @@ export default async function RootLayout({
     );
   }
   return <p>Success</p>;
-  );
 }
