@@ -21,4 +21,12 @@ async function getToken() {
   return newTokenResponse;
 }
 
-export { getToken };
+async function checkToken(token: string) {
+  console.log(token);
+  const result = await sql`SELECT token FROM tokens WHERE token = ${token}`;
+  console.log(result);
+  const existingToken = result.rows[0]?.token ?? null;
+  return existingToken ? true : false;
+}
+
+export { getToken, checkToken };
