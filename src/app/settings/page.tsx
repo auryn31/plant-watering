@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getToken } from "../components/token";
 
 export default function Settings() {
@@ -22,17 +22,19 @@ export default function Settings() {
     }
   };
 
-  const generateToken = async () => {
-    getToken();
-    setToken(crypto.randomUUID());
-  };
+  useEffect(() => {
+    getToken().then(setToken);
+  }, []);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="flex flex-row gap-4 items-center">
-        <button className="btn btn-neutral" onClick={generateToken}>
-          Generate
-        </button>
-        <p className="text-neutral-content">{token ? token : "-"}</p>
+    <main className="flex min-h-screen flex-col items-center justify-between">
+      <div className="flex flex-col xl:flex-row gap-4 items-center">
+        <p className="text-lg">Token:</p>
+        {token ? (
+          <p className="text-neutral-content text-center">{token}</p>
+        ) : (
+          <span className="loading loading-spinner"></span>
+        )}
         <button
           className={`btn btn-ghost ${token === null && "btn-disabled"}`}
           onClick={() => copyToClipboard(token ?? "")}
