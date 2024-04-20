@@ -17,8 +17,8 @@ const UpdatePlant: React.FC<{
 
   const onSubmit: SubmitHandler<Plant> = (data: Plant) => {
     savePlant({
-      id,
       ...data,
+      id,
     });
   };
 

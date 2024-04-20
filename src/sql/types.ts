@@ -1,34 +1,55 @@
+import type { ColumnType } from "kysely";
 import { z } from "zod";
 
-type Token = {
-  user_id: string;
-  token_id: string;
-  created_at: Date;
-};
+export type Generated<T> =
+  T extends ColumnType<infer S, infer I, infer U>
+    ? ColumnType<S, I | undefined, U>
+    : ColumnType<T, T | undefined, T>;
 
-type User = {
-  user_id: string;
-  name: string;
-  email: string;
-  created_at: Date;
-};
-
-type Plant = {
+export interface Plant {
+  created_at: Date | null;
+  desired_humidity: number | null;
   id: string;
-  token_id: string;
-  name: string;
-  ml_per_watering: number;
-  max_ml_per_day: number;
-  desired_humidity: number;
-  created_at: Date;
-};
+  max_ml_per_day: number | null;
+  ml_per_watering: number | null;
+  name: string | null;
+  token_id: string | null;
+}
 
-// type PlantValue = {
-//   plant_id: string;
-//   humidity: number;
-//   last_watering_in_ml: number;
-//   created_at: Date;
-// };
+export interface PlantOverview {
+  id: string | null;
+  name: string | null;
+  humidity: number | null;
+  last_watering_in_ml: number | null;
+  last_watering: Date | null;
+}
+
+export interface PlantUser {
+  created_at: Date | null;
+  email: string | null;
+  name: string | null;
+  user_id: string;
+}
+
+export interface PlantValues {
+  created_at: Date | null;
+  humidity: number | null;
+  last_watering_in_ml: number | null;
+  plant_id: string | null;
+}
+
+export interface Token {
+  created_at: Date | null;
+  token_id: string;
+  user_id: string;
+}
+
+export interface DB {
+  plant: Plant;
+  plant_user: PlantUser;
+  plant_values: PlantValues;
+  token: Token;
+}
 
 const PlantValue = z
   .object({
@@ -41,4 +62,3 @@ const PlantValue = z
 
 type PlantValue = z.infer<typeof PlantValue>;
 export { PlantValue };
-export type { Token, User, Plant };

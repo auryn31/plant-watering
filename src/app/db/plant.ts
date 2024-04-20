@@ -1,28 +1,80 @@
 "use server";
 import { sql } from "@vercel/postgres";
 import { getSession } from "@auth0/nextjs-auth0";
-import { Plant, PlantValue } from "@/sql/types";
+import { DB, Plant, PlantOverview, PlantValue } from "@/sql/types";
+import { createKysely } from "@vercel/postgres-kysely";
+
+const db = createKysely<DB>();
 
 async function getPlant(id: string): Promise<Plant | null> {
-  const result = await sql`SELECT * FROM plant WHERE id = ${id}`;
-  console.log(result);
-  return result.rows[0] ?? null;
+  const result = await db
+    .selectFrom("plant")
+    .selectAll()
+    .where("plant.id", "=", id)
+    .executeTakeFirstOrThrow();
+  return result;
 }
-async function getPlants(): Promise<Plant[]> {
+async function getPlants(): Promise<PlantOverview[]> {
   const session = await getSession();
   if (!session) {
     return [];
   }
   const user = session.user;
-  const token_select =
-    await sql`select token_id from token where user_id=${user.sub}`;
-  if (!token_select.rows || token_select.rows.length == 0) {
-    return [];
-  }
-  const token = token_select.rows[0].token_id;
-  const result =
-    await sql`SELECT id, name FROM plant WHERE token_id = ${token}`;
-  return result.rows ?? [];
+  const token = await getToken(user.sub);
+  // const result =
+  //   await sql`SELECT id, name FROM plant WHERE token_id = ${token}`;
+
+  const maxCreatedAtSubquery = db
+    .selectFrom("plant_values")
+    .select(["plant_id", db.fn.max("created_at").as("max_created_at")])
+    .groupBy("plant_id")
+    .as("latest");
+
+  // Define the subquery for the latest plant values
+  const latestPlantValuesSubquery = db
+    .selectFrom("plant_values as pv")
+    .innerJoin(maxCreatedAtSubquery, (join) =>
+      join.onRef("latest.plant_id", "=", "pv.plant_id"),
+    )
+    .select([
+      "pv.plant_id",
+      "pv.humidity",
+      "pv.last_watering_in_ml",
+      "pv.created_at",
+    ])
+    .whereRef("pv.created_at", "=", "latest.max_created_at")
+    .as("pv");
+
+  // Perform the query with a left join
+  const result = await db
+    .selectFrom("plant as pl")
+    .leftJoin(latestPlantValuesSubquery, (join) =>
+      join.onRef("pl.id", "=", "pv.plant_id"),
+    )
+    .select([
+      "pl.id",
+      "pl.name",
+      "pv.humidity",
+      "pv.last_watering_in_ml",
+      "pv.created_at as last_watering",
+    ])
+    .where("pl.token_id", "=", token)
+    .execute();
+
+  //   const result = await sql`
+  //   SELECT pl.*, pv.humidity, pv.last_watering_in_ml, pv.created_at last_watering
+  //   FROM "plant" pl
+  //   LEFT JOIN (
+  //       SELECT pv.plant_id, pv.humidity, pv.last_watering_in_ml, pv.created_at
+  //       FROM "plant_values" pv
+  //       INNER JOIN (
+  //           SELECT plant_id, MAX(created_at) as max_created_at
+  //           FROM "plant_values"
+  //           GROUP BY plant_id
+  //       ) latest ON pv.plant_id = latest.plant_id AND pv.created_at = latest.max_created_at
+  //   ) pv ON pl.id = pv.plant_id where token_id=${token}
+  // `;
+  return result ?? [];
 }
 
 async function savePlant(plant: Plant): Promise<number> {
@@ -42,16 +94,21 @@ async function createPlant(): Promise<string | null> {
   }
   const user = session.user;
   const id = crypto.randomUUID();
-  const token = await getToken(user.sub);
-  await sql`INSERT INTO plant (id, token_id) VALUES (${id}, ${token})`;
+  const token_id = await getToken(user.sub);
+  await db
+    .insertInto("plant")
+    .values({ id, token_id })
+    .executeTakeFirstOrThrow();
   return id;
 }
 
 const getToken = async (userId: string): Promise<string> => {
-  const token_select =
-    await sql`select token_id from token where user_id=${userId}`;
-  const token = token_select.rows[0].token_id;
-  return token;
+  const token = await db
+    .selectFrom("token")
+    .select("token_id")
+    .where("user_id", "=", userId)
+    .executeTakeFirstOrThrow();
+  return token.token_id;
 };
 
 async function deletePlant(id: string) {
@@ -59,14 +116,25 @@ async function deletePlant(id: string) {
   if (!session) {
     return null;
   }
-  const user = session.user;
-  await sql`DELETE FROM plant WHERE user_id = ${user.sub} AND id = ${id}`;
+  const token = await getToken(session.user.sub);
+  await db.deleteFrom("plant_values").where("plant_id", "=", id).execute();
+  await db
+    .deleteFrom("plant")
+    .where("id", "=", id)
+    .where("token_id", "=", token)
+    .execute();
 }
 
 const addPlantValue = async (values: PlantValue): Promise<number> => {
-  const result =
-    await sql`insert into plant_values (plant_id, humidity, last_watering_in_ml) values (${values.plant_id}, ${values.humidity}, ${values.last_watering_in_ml})`;
-  return result.rowCount;
+  const result = await db
+    .insertInto("plant_values")
+    .values(values)
+    .executeTakeFirst();
+  if (result) {
+    return 1;
+  } else {
+    return 0;
+  }
 };
 
 export {

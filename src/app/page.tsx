@@ -3,6 +3,7 @@ import { getSession } from "@auth0/nextjs-auth0";
 import { redirect } from "next/navigation";
 import { getPlants } from "./db/plant";
 import { NewPlantButton } from "./components/newPlant";
+import { getToken } from "./db/token";
 
 export default async function Home() {
   const session = await getSession();
@@ -10,6 +11,7 @@ export default async function Home() {
     redirect("/login");
   }
   const plants = await getPlants();
+  const token = await getToken();
   console.log(plants);
 
   return (
@@ -19,7 +21,7 @@ export default async function Home() {
           <p className="text-2xl">Welcome to PlantR</p>
           <div className="flex flex-row flex-wrap w-full gap-4">
             {plants.map((plant) => (
-              <PlantCard {...plant} />
+              <PlantCard key={plant.id} {...plant} />
             ))}
           </div>
           <NewPlantButton />
