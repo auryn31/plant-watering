@@ -21,7 +21,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <UserProvider>
-        <body className={inter.className}>
+        <body className={`${inter.className} h-screen`}>
           {user && (
             <div className="navbar bg-base-100">
               <div className="flex-1">
