@@ -1,5 +1,4 @@
 "use server";
-import { sql } from "@vercel/postgres";
 import { getSession } from "@auth0/nextjs-auth0";
 import { DB, Plant, PlantOverview, PlantValue } from "@/sql/types";
 import { createKysely } from "@vercel/postgres-kysely";
@@ -21,8 +20,6 @@ async function getPlants(): Promise<PlantOverview[]> {
   }
   const user = session.user;
   const token = await getToken(user.sub);
-  // const result =
-  //   await sql`SELECT id, name FROM plant WHERE token_id = ${token}`;
 
   const maxCreatedAtSubquery = db
     .selectFrom("plant_values")
@@ -61,19 +58,6 @@ async function getPlants(): Promise<PlantOverview[]> {
     .where("pl.token_id", "=", token)
     .execute();
 
-  //   const result = await sql`
-  //   SELECT pl.*, pv.humidity, pv.last_watering_in_ml, pv.created_at last_watering
-  //   FROM "plant" pl
-  //   LEFT JOIN (
-  //       SELECT pv.plant_id, pv.humidity, pv.last_watering_in_ml, pv.created_at
-  //       FROM "plant_values" pv
-  //       INNER JOIN (
-  //           SELECT plant_id, MAX(created_at) as max_created_at
-  //           FROM "plant_values"
-  //           GROUP BY plant_id
-  //       ) latest ON pv.plant_id = latest.plant_id AND pv.created_at = latest.max_created_at
-  //   ) pv ON pl.id = pv.plant_id where token_id=${token}
-  // `;
   return result ?? [];
 }
 
@@ -83,9 +67,13 @@ async function savePlant(plant: Plant): Promise<number> {
     return 0;
   }
   const token = await getToken(session.user.sub);
-  const updated =
-    await sql`UPDATE plant SET name = ${plant.name}, ml_per_watering= ${plant.ml_per_watering}, max_ml_per_day = ${plant.max_ml_per_day}, desired_humidity = ${plant.desired_humidity}  WHERE token_id = ${token} AND id = ${plant.id}`;
-  return updated.rowCount;
+  const updated = await db
+    .updateTable("plant")
+    .set(plant)
+    .where("id", "=", plant.id)
+    .where("token_id", "=", token)
+    .execute();
+  return updated.length;
 }
 async function createPlant(): Promise<string | null> {
   const session = await getSession();
@@ -126,15 +114,8 @@ async function deletePlant(id: string) {
 }
 
 const addPlantValue = async (values: PlantValue): Promise<number> => {
-  const result = await db
-    .insertInto("plant_values")
-    .values(values)
-    .executeTakeFirst();
-  if (result) {
-    return 1;
-  } else {
-    return 0;
-  }
+  const result = await db.insertInto("plant_values").values(values).execute();
+  return result.length;
 };
 
 export {

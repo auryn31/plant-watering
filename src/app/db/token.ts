@@ -1,42 +1,51 @@
 "use server";
-import { sql } from "@vercel/postgres";
 import { getSession } from "@auth0/nextjs-auth0";
+import { DB } from "@/sql/types";
+import { createKysely } from "@vercel/postgres-kysely";
 
-async function getToken() {
+const db = createKysely<DB>();
+
+async function getToken(): Promise<string | null> {
   const session = await getSession();
   if (!session) {
     return null;
   }
   const user = session.user;
-  const result =
-    await sql`SELECT token_id FROM token WHERE user_id = ${user.sub}`;
-  const existingToken = result.rows[0]?.token_id ?? null;
-  if (existingToken) {
-    return existingToken;
+  const result = await db
+    .selectFrom("token")
+    .select("token_id")
+    .where("user_id", "=", user.sub)
+    .executeTakeFirst();
+  if (result) {
+    return result.token_id;
   }
-
   const newToken = crypto.randomUUID();
 
-  console.log(
-    `INSERT INTO user (user_id, name, email) VALUES (${user.sub}, ${user.name}, ${user.email})`,
-  );
-  const createuser =
-    await sql`INSERT INTO plant_user (user_id, name, email) VALUES (${user.sub}, ${user.name}, ${user.email})`;
-  console.log(createuser);
-  const newTokenResponse =
-    await sql`INSERT INTO token (user_id, token_id) VALUES (${user.sub}, ${newToken})`;
-  console.log(user);
-  console.log(newTokenResponse);
-  return newTokenResponse;
+  await db
+    .insertInto("plant_user")
+    .values({
+      user_id: user.sub,
+      name: user.name,
+      email: user.email,
+    })
+    .executeTakeFirstOrThrow();
+  await db
+    .insertInto("token")
+    .values({
+      user_id: user.sub,
+      token_id: newToken,
+    })
+    .executeTakeFirstOrThrow();
+  return newToken;
 }
 
-async function checkToken(token: string) {
-  console.log(token);
-  const result =
-    await sql`SELECT token_id FROM token WHERE token_id = ${token}`;
-  console.log(result);
-  const existingToken = result.rows[0]?.token_id ?? null;
-  return existingToken ? true : false;
+async function checkToken(token: string): Promise<boolean> {
+  const result = await db
+    .selectFrom("token")
+    .select("token_id")
+    .where("token_id", "=", token)
+    .executeTakeFirst();
+  return result?.token_id ? true : false;
 }
 
 export { getToken, checkToken };
