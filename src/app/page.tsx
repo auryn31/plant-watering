@@ -15,7 +15,7 @@ export default async function Home() {
   const token = await getToken();
 
   return (
-    <main className="flex min-h-screen flex-col items-center">
+    <main className="flex grow h-full flex-col items-center">
       <div className="flex flex-grow w-full justify-center items-center">
         <div className="flex flex-col gap-4">
           <p className="text-3xl">Your plants</p>
