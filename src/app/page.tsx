@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getPlants } from "./db/plant";
 import { NewPlantButton } from "./components/newPlant";
 import { getToken } from "./db/token";
+import { TokenView } from "./components/tokenView";
 
 export default async function Home() {
   const session = await getSession();
@@ -12,19 +13,19 @@ export default async function Home() {
   }
   const plants = await getPlants();
   const token = await getToken();
-  console.log(plants);
 
   return (
     <main className="flex min-h-screen flex-col items-center">
       <div className="flex flex-grow w-full justify-center items-center">
         <div className="flex flex-col gap-4">
-          <p className="text-2xl">Welcome to PlantR</p>
+          <p className="text-3xl">Your plants</p>
           <div className="flex flex-row flex-wrap w-full gap-4">
             {plants.map((plant) => (
               <PlantCard key={plant.id} {...plant} />
             ))}
           </div>
           <NewPlantButton />
+          <TokenView token={token ?? "-"} />
         </div>
       </div>
     </main>

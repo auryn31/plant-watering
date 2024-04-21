@@ -29,7 +29,7 @@ const UpdatePlant: React.FC<{
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <label className="label">
+      <label className="label flex gap-4">
         <span className="label-text">Name</span>
         <input
           type="text"
@@ -38,7 +38,7 @@ const UpdatePlant: React.FC<{
           {...register("name", { required: true })}
         />
       </label>
-      <label className="label">
+      <label className="label flex gap-4">
         <span className="label-text">Target Humidity</span>
         <input
           type="number"
@@ -47,7 +47,7 @@ const UpdatePlant: React.FC<{
           className="input"
         />
       </label>
-      <label className="label">
+      <label className="label flex gap-4">
         <span className="label-text">ml per watering</span>
         <input
           type="number"
@@ -56,7 +56,7 @@ const UpdatePlant: React.FC<{
           {...register("ml_per_watering", { required: true })}
         />
       </label>
-      <label className="label">
+      <label className="label flex gap-4">
         <span className="label-text">Max ml per day</span>
         <input
           type="number"
@@ -65,15 +65,17 @@ const UpdatePlant: React.FC<{
           {...register("max_ml_per_day", { required: true })}
         />
       </label>
-      <button className="btn btn-primary">Save</button>
-      <button
-        className="btn btn-error"
-        onClick={() => {
-          deletePlantClicked();
-        }}
-      >
-        Delete
-      </button>
+      <div className="w-full justify-end gap-4 flex flex-row pt-4">
+        <button className="btn btn-accent">Save</button>
+        <button
+          className="btn btn-error text-white"
+          onClick={() => {
+            deletePlantClicked();
+          }}
+        >
+          Delete
+        </button>
+      </div>
     </form>
   );
 };

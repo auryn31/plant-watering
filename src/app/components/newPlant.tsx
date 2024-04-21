@@ -11,7 +11,7 @@ const NewPlantButton: React.FC = () => {
   };
 
   return (
-    <button className="btn" onClick={addPlant}>
+    <button className="btn btn-accent text-white" onClick={addPlant}>
       Add Plant
     </button>
   );

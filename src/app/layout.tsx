@@ -21,53 +21,52 @@ export default async function RootLayout({
   const user = session?.user;
   return (
     <html lang="en">
-      <Analytics>
-        <UserProvider>
-          <body className={`${inter.className} h-screen`}>
-            {user && (
-              <div className="navbar bg-base-100">
-                <div className="flex-1">
-                  <a className="btn btn-ghost text-xl" href="/">
-                    PlantR
-                  </a>
-                </div>
-                <div className="flex-none">
-                  <div className="dropdown dropdown-end">
-                    <div
-                      tabIndex={0}
-                      role="button"
-                      className="btn btn-ghost btn-circle avatar"
-                    >
-                      <div className="w-10 rounded-full">
-                        <img
-                          alt="Tailwind CSS Navbar component"
-                          src={user?.picture}
-                        />
-                      </div>
+      <UserProvider>
+        <body className={`${inter.className} h-screen`}>
+          {user && (
+            <div className="navbar bg-base-100">
+              <div className="flex-1">
+                <a className="btn btn-ghost text-xl" href="/">
+                  PlantR
+                </a>
+              </div>
+              <div className="flex-none">
+                <div className="dropdown dropdown-end">
+                  <div
+                    tabIndex={0}
+                    role="button"
+                    className="btn btn-ghost btn-circle avatar"
+                  >
+                    <div className="w-10 rounded-full">
+                      <img
+                        alt="Tailwind CSS Navbar component"
+                        src={user?.picture}
+                      />
                     </div>
-                    <ul
-                      tabIndex={0}
-                      className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-                    >
-                      <li className="p-2 text-gray-500">{user?.name}</li>
-                      <li className="p-2 text-gray-500">{user?.email}</li>
-                      <li>
-                        <a href="/settings">Settings</a>
-                      </li>
-                      <li>
-                        <a className="text-red-500" href="/api/auth/logout">
-                          Logout
-                        </a>
-                      </li>
-                    </ul>
                   </div>
+                  <ul
+                    tabIndex={0}
+                    className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+                  >
+                    <li className="p-2 text-gray-500">{user?.name}</li>
+                    <li className="p-2 text-gray-500">{user?.email}</li>
+                    <li>
+                      <a href="/settings">Settings</a>
+                    </li>
+                    <li>
+                      <a className="text-red-500" href="/api/auth/logout">
+                        Logout
+                      </a>
+                    </li>
+                  </ul>
                 </div>
               </div>
-            )}
-            {children}
-          </body>
-        </UserProvider>
-      </Analytics>
+            </div>
+          )}
+          {children}
+          <Analytics />
+        </body>
+      </UserProvider>
     </html>
   );
 }

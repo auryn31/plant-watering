@@ -10,9 +10,12 @@ export default async function Settings({ params }: { params: { id: string } }) {
   }
   return (
     <main className="flex flex-col items-center justify-between">
-      <div className="flex flex-col xl:flex-row gap-4 items-center">
+      <div className="flex flex-col gap-4 items-center p-4">
         <div>
-          Plant:
+          <h1 className="text-2xl flex flex-row gap-2">
+            Plant:{" "}
+            <div className="text-gray-300 italic">{plantData.name ?? "-"}</div>
+          </h1>
           <TokenView token={params.id} />
         </div>
         <UpdatePlant id={params.id} defaultData={plantData} />

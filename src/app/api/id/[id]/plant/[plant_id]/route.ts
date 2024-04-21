@@ -31,7 +31,11 @@ export async function PUT(req: Request, { params }: Params) {
       ...plantUpdate,
       plant_id: params.plant_id,
     });
-    return NextResponse.json(plantUpdate);
+    if (result === 0) {
+      return NextResponse.json({ error: "Plant not found" }, { status: 404 });
+    } else {
+      return NextResponse.json(plantUpdate);
+    }
   } catch (e) {
     console.error(e);
     return NextResponse.json(
