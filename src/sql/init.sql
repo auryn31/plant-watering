@@ -1,8 +1,9 @@
 drop table if exists plant_values;
 drop table if exists plant;
 drop table if exists "user";
-drop table if exists "plant_user";
 drop table if exists token;
+drop table if exists tokens;
+drop table if exists "plant_user";
 
 
 CREATE TABLE "token" (
