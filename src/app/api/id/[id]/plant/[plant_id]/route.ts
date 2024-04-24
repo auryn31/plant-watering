@@ -15,8 +15,16 @@ export async function GET(_req: Request, { params }: Params) {
   if (!tokenIsValid) {
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
-  const plant = await getPlant(params.plant_id);
-  return NextResponse.json({ plant });
+  try {
+    const plant = await getPlant(params.plant_id);
+    if (!plant) {
+      return NextResponse.json({ error: "Plant not found" }, { status: 404 });
+    }
+    return NextResponse.json({ plant });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: e }, { status: 404 });
+  }
 }
 
 export async function PUT(req: Request, { params }: Params) {

@@ -24,6 +24,10 @@ export interface PlantOverview {
   last_watering: Date | null;
 }
 
+export interface PlantWithValues extends Plant {
+  values: Array<PlantValues>;
+}
+
 export interface PlantUser {
   created_at: Date | null;
   email: string | null;
