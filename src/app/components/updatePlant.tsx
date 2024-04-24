@@ -17,8 +17,11 @@ const UpdatePlant: React.FC<{
 
   const onSubmit: SubmitHandler<Plant> = (data: Plant) => {
     savePlant({
-      ...data,
       id,
+      name: data.name,
+      desired_humidity: data.desired_humidity,
+      ml_per_watering: data.ml_per_watering,
+      max_ml_per_day: data.max_ml_per_day,
     });
   };
 

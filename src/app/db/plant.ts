@@ -52,12 +52,12 @@ async function getPlant(id: string): Promise<PlantWithWatering | null> {
   }
   const plant = mapped[0];
   console.log(plant);
-  const water_today = plant.values.reduce(
+  const water_today = plant.values?.reduce(
     (acc, value) => acc + (value.last_watering_in_ml ?? 0),
     0,
   );
-  const last_humidity = plant.values[0].humidity;
-  const last_watering_value_pushed = plant.values[0].created_at;
+  const last_humidity = plant.values[0]?.humidity;
+  const last_watering_value_pushed = plant.values[0]?.created_at;
 
   return {
     id: plant.id,
@@ -178,7 +178,13 @@ const mapResult = (entries: PlantEntry[]): PlantWithValues[] => {
   return Object.values(grouped);
 };
 
-async function savePlant(plant: Plant): Promise<number> {
+async function savePlant(plant: {
+  id: string;
+  name: string | null;
+  desired_humidity: number | null;
+  ml_per_watering: number | null;
+  max_ml_per_day: number | null;
+}): Promise<number> {
   const session = await getSession();
   if (!session) {
     return 0;
