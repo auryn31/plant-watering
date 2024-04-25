@@ -64,6 +64,8 @@ const PlantChart: React.FC<Pick<PlantWithValues, "values">> = ({ values }) => {
         type: "datetime",
       },
       yaxis: {
+        min: 0,
+        max: 100,
         labels: {
           style: {
             colors: "#616161",

@@ -18,8 +18,8 @@ export default async function Home() {
     <main className="flex grow h-full flex-col items-center">
       <div className="flex flex-grow w-full justify-center items-center">
         <div className="flex flex-col gap-4">
-          <p className="text-3xl">Your plants</p>
-          <div className="flex flex-row flex-wrap w-full gap-4">
+          <p className="text-3xl m-6 md:m-0">Your plants</p>
+          <div className="flex flex-row flex-wrap justify-center w-full gap-4">
             {plants.map((plant) => (
               <PlantCard key={plant.id} {...plant} />
             ))}
