@@ -4,7 +4,7 @@ import Link from "next/link";
 import { PlantChart } from "./plantChart";
 
 const PlantCard: React.FC<PlantWithValues> = ({ id, name, values }) => {
-  const latestValue = values[0];
+  const latestValue = values[values.length - 1];
   return (
     <div className="card bg-base-100 shadow-xl">
       <PlantChart values={values} />
