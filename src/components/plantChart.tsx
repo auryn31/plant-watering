@@ -6,7 +6,7 @@ import { Props } from "react-apexcharts";
 const PlantChart: React.FC<Pick<PlantWithValues, "values">> = ({ values }) => {
   const displayValues = values
     .filter(
-      (it) => it.humidity !== null && it.humidity > 0 && it.humidity < 100,
+      (it) => it.humidity !== null && it.humidity > 0 && it.humidity =< 100,
     )
     .slice(0, 60)
     .reverse();
