@@ -6,11 +6,11 @@ import { PlantChart } from "./plantChart";
 const PlantCard: React.FC<PlantWithValues> = ({ id, name, values }) => {
   const latestValue = values[0];
   return (
-    <div className="card bg-base-100 shadow-xl">
+    <div className="grow card bg-base-100 shadow-xl max-w-3xl">
       <PlantChart values={values} />
       <div className="card-body">
         <Link href={`/plant/${id}`} key={id}>
-          <h1 className="card-title">{name}</h1>
+          <h1 className="card-title">{name ?? "Name: -"}</h1>
           <p>
             Humidity:{" "}
             {latestValue?.humidity !== undefined ? latestValue.humidity : "-"} %

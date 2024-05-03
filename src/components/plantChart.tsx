@@ -13,6 +13,13 @@ const PlantChart: React.FC<Pick<PlantWithValues, "values">> = ({ values }) => {
     )
     .slice(0, 60)
     .reverse();
+  if (displayValues.length === 0) {
+    return (
+      <div className="w-full h-[240px] text-center m-auto align-middle leading-[240px] text-gray-400 italic">
+        No data
+      </div>
+    );
+  }
   const humidityData = displayValues.map((it) => it.humidity);
   const watering = displayValues.map((it) => it.last_watering_in_ml);
   const createdData = displayValues.map((it) => it.created_at?.getTime());
@@ -116,11 +123,7 @@ const PlantChart: React.FC<Pick<PlantWithValues, "values">> = ({ values }) => {
       },
     },
   };
-  return (
-    <div>
-      <Chart {...chartConfig} series={series} />
-    </div>
-  );
+  return <Chart {...chartConfig} series={series} />;
 };
 
 export { PlantChart };

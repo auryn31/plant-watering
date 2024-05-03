@@ -17,15 +17,19 @@ export default async function Home() {
   return (
     <main className="flex grow h-full flex-col items-center">
       <div className="flex flex-grow w-full justify-center items-center">
-        <div className="flex flex-col gap-4">
-          <p className="text-3xl m-6 md:m-0">Your plants</p>
-          <div className="flex flex-row flex-wrap justify-center w-full gap-4">
+        <div className="w-full flex flex-col gap-4">
+          <p className="text-3xl m-6 ">Your plants</p>
+          <div className="flex flex-row flex-wrap justify-center w-full gap-4 px-6">
             {plants.map((plant) => (
               <PlantCard key={plant.id} {...plant} />
             ))}
           </div>
-          <NewPlantButton />
-          <TokenView token={token ?? "-"} />
+          <div className="flex flex-row justify-center">
+            <NewPlantButton />
+          </div>
+          <div className="flex flex-row justify-center">
+            <TokenView token={token ?? "-"} />
+          </div>
         </div>
       </div>
     </main>
