@@ -5,6 +5,10 @@ import { PlantChart } from "./plantChart";
 
 const PlantCard: React.FC<PlantWithValues> = ({ id, name, values }) => {
   const latestValue = values[0];
+  const wateringToday = values
+    .map((it) => it.last_watering_in_ml)
+    .map((it) => it ?? 0)
+    .reduce((acc, it) => acc + it, 0);
   return (
     <div className="grow card bg-base-100 shadow-xl max-w-3xl">
       <PlantChart values={values} />
@@ -15,13 +19,7 @@ const PlantCard: React.FC<PlantWithValues> = ({ id, name, values }) => {
             Humidity:{" "}
             {latestValue?.humidity !== undefined ? latestValue.humidity : "-"} %
           </p>
-          <p>
-            Last watering:{" "}
-            {latestValue?.last_watering_in_ml !== undefined
-              ? latestValue?.last_watering_in_ml
-              : "-"}{" "}
-            ml
-          </p>
+          <p>Watered today: {wateringToday} ml</p>
           <p className="text-gray-400 italic">
             Last update:{" "}
             {latestValue?.created_at
