@@ -8,11 +8,9 @@ const UpdatePlant: React.FC<{
   id: string;
   defaultData: Plant;
 }> = ({ id, defaultData }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Plant>({ defaultValues: defaultData });
+  const { register, handleSubmit } = useForm<Plant>({
+    defaultValues: defaultData,
+  });
   const router = useRouter();
 
   const onSubmit: SubmitHandler<Plant> = (data: Plant) => {
@@ -22,6 +20,7 @@ const UpdatePlant: React.FC<{
       desired_humidity: data.desired_humidity,
       ml_per_watering: data.ml_per_watering,
       max_ml_per_day: data.max_ml_per_day,
+      watering_allowed: data.watering_allowed,
     });
   };
 
@@ -66,6 +65,14 @@ const UpdatePlant: React.FC<{
           placeholder="100"
           className="input"
           {...register("max_ml_per_day", { required: true })}
+        />
+      </label>
+      <label className="label flex gap-4">
+        <span className="label-text">Watering is allowed</span>
+        <input
+          type="checkbox"
+          className="checkbox"
+          {...register("watering_allowed")}
         />
       </label>
       <div className="w-full justify-end gap-4 flex flex-row pt-4">

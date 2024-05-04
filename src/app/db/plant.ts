@@ -9,6 +9,7 @@ interface PlantWithWatering extends Plant {
   water_today: number | null;
   last_humidity: number | null;
   last_watering_value_pushed: Date | null;
+  watering_allowed: boolean;
 }
 
 async function getPlant(id: string): Promise<PlantWithWatering | null> {
@@ -39,6 +40,7 @@ async function getPlant(id: string): Promise<PlantWithWatering | null> {
       "pl.max_ml_per_day",
       "pl.ml_per_watering",
       "pl.token_id",
+      "pl.watering_allowed",
       "pv.humidity",
       "pv.plant_id",
       "pv.last_watering_in_ml",
@@ -51,13 +53,17 @@ async function getPlant(id: string): Promise<PlantWithWatering | null> {
     throw new Error("Plant not found");
   }
   const plant = mapped[0];
-  console.log(plant);
   const water_today = plant.values?.reduce(
     (acc, value) => acc + (value.last_watering_in_ml ?? 0),
     0,
   );
   const last_humidity = plant.values[0]?.humidity;
   const last_watering_value_pushed = plant.values[0]?.created_at;
+
+  // watering is allowed if max water not exeeted and plant is allowed to be watered
+  const watering_allowed =
+    ((plant.max_ml_per_day ?? 0) >= water_today && plant.watering_allowed) ??
+    false;
 
   return {
     id: plant.id,
@@ -70,6 +76,7 @@ async function getPlant(id: string): Promise<PlantWithWatering | null> {
     water_today,
     last_humidity,
     last_watering_value_pushed,
+    watering_allowed,
   };
 }
 async function getPlants(): Promise<PlantWithValues[]> {
@@ -93,17 +100,6 @@ async function getPlants(): Promise<PlantWithValues[]> {
       .orderBy("created_at", "desc")
       .where("pv.created_at", ">=", today)
       .as("pv");
-    // const allPlantValuesSubquery = db
-    //   .selectFrom("plant_values as pv")
-    //   .select([
-    //     "pv.plant_id",
-    //     "pv.humidity",
-    //     "pv.last_watering_in_ml",
-    //     "pv.created_at",
-    //   ])
-    //   .orderBy("created_at", "desc")
-    //   .limit(12)
-    //   .as("pv");
 
     const result = await db
       .selectFrom("plant as pl")
@@ -118,6 +114,7 @@ async function getPlants(): Promise<PlantWithValues[]> {
         "pl.max_ml_per_day",
         "pl.ml_per_watering",
         "pl.token_id",
+        "pl.watering_allowed",
         "pv.humidity",
         "pv.plant_id",
         "pv.last_watering_in_ml",
@@ -126,23 +123,6 @@ async function getPlants(): Promise<PlantWithValues[]> {
       .where("pl.token_id", "=", token)
       .execute();
     const mapped = mapResult(result);
-    // console.log(mapped);
-    // Perform the query with a left join
-    // const result = await db
-    //   .selectFrom("plant as pl")
-    //   .leftJoin(latestPlantValuesSubquery, (join) =>
-    //     join.onRef("pl.id", "=", "pv.plant_id"),
-    //   )
-    //   .select([
-    //     "pl.id",
-    //     "pl.name",
-    //     "pv.humidity",
-    //     "pv.last_watering_in_ml",
-    //     "pv.created_at as last_watering",
-    //   ])
-    //   .where("pl.token_id", "=", token)
-    //   .execute();
-
     return mapped ?? [];
   } catch (e) {
     console.error(e);
@@ -184,6 +164,7 @@ async function savePlant(plant: {
   desired_humidity: number | null;
   ml_per_watering: number | null;
   max_ml_per_day: number | null;
+  watering_allowed: boolean | null;
 }): Promise<number> {
   const session = await getSession();
   if (!session) {

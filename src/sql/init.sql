@@ -27,6 +27,7 @@ CREATE TABLE "plant" (
   "ml_per_watering" int,
   "max_ml_per_day" int,
   "desired_humidity" float,
+  "watering_allowed" boolean DEFAULT FALSE,
   "created_at" timestamp DEFAULT (now())
 );
 

@@ -14,6 +14,7 @@ export interface Plant {
   ml_per_watering: number | null;
   name: string | null;
   token_id: string | null;
+  watering_allowed: boolean | null;
 }
 
 export interface PlantOverview {

@@ -4,7 +4,12 @@ import Link from "next/link";
 import { PlantChart } from "./plantChart";
 
 const PlantCard: React.FC<PlantWithValues> = ({ id, name, values }) => {
-  const latestValue = values[0];
+  const latestValue = values.sort((a, b) => {
+    if (a.created_at && b.created_at) {
+      return b.created_at.getTime() - a.created_at.getTime();
+    }
+    return 0;
+  })[0];
   const wateringToday = values
     .map((it) => it.last_watering_in_ml)
     .map((it) => it ?? 0)
